@@ -18,3 +18,7 @@ body::before {
     z-index: -12;
     overflow: overlay;
 }
+
+html {
+    scrollbar-gutter: stable;
+}
