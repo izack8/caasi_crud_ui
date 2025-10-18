@@ -1,4 +1,3 @@
-import DrawingCanvas from './DrawingCanvas';
 import WritingSection from './sections/WritingSection';
 
 
