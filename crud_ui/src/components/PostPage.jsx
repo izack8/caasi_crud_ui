@@ -79,12 +79,14 @@ export default function Post() {
     setSaving(true);
     try {
       const url = isNewPost ? API_ENDPOINTS.posts : API_ENDPOINTS.post(id);
+      const token = localStorage.getItem('token') || '';
       const method = isNewPost ? 'POST' : 'PUT';
 
       const response = await fetch(url, {
         method: method,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           date: post.date,
