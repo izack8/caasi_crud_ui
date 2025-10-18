@@ -127,11 +127,11 @@ export default function Post() {
     } catch (error) {
       console.error('Error updating post:', error);
       alert('Failed to save post. Please login again.');
+      localStorage.removeItem('token');
+      navigate('/login');
 
     } finally {
       setSaving(false);
-      localStorage.removeItem('token');
-      navigate('/login');
     }
   };
 
