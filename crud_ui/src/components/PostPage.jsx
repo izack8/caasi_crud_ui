@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation, replace } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PostUI from './ui/PostUI';
 import { API_ENDPOINTS } from '../config';
-import Footer from '../components/ui/Footer';
+import Footer from './ui/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Post() {
