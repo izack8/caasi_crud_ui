@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         
         const token = localStorage.getItem('token');
         if (token) {
-            
             setUser({ username: 'admin' });
         }
         setLoading(false);
@@ -33,7 +32,6 @@ export const AuthProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ username, password }),
             });

@@ -13,6 +13,7 @@ export default function Post() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newMarkdown, setNewMarkdown] = useState('');
+
   const navigate = useNavigate();
   
   const isNewPost = location.pathname === '/writing/new';
@@ -37,7 +38,7 @@ export default function Post() {
         title: '',
         date: new Date().toISOString().split('T')[0],
         description: '',
-        md: '# New Post\n\nStart writing your post here...'
+        content: '# New Post\n\nStart writing your post here...'
       });
       setIsEditing(true); // Start in editing mode for new posts
       setLoading(false);
@@ -50,6 +51,7 @@ export default function Post() {
         setLoading(false);
       } else {
         fetchPost(); 
+        setNewMarkdown(post ? post.content : '');
       }
     }
   }, [id, isNewPost]);
@@ -62,10 +64,6 @@ export default function Post() {
 
   const handleEdit = () => {
     setIsEditing(true);
-  };
-
-  const handleChange = (updatedPost) => {
-    setPost(updatedPost);
   };
 
   const handleSave = async () => {
@@ -81,6 +79,7 @@ export default function Post() {
       const url = isNewPost ? API_ENDPOINTS.posts : API_ENDPOINTS.post(id);
       const token = localStorage.getItem('token') || '';
       const method = isNewPost ? 'POST' : 'PUT';
+      console.log("token:", token);
 
       const response = await fetch(url, {
         method: method,

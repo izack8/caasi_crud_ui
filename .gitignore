@@ -28,6 +28,7 @@ MANIFEST
 
 # Dependencies
 node_modules/
+crud_ui/.vite/deps
 
 # environment variables
 .env
