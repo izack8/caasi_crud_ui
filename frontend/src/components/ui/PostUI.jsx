@@ -103,7 +103,7 @@ export default function PostUI({
               isEditing={isEditing}
               onUpdate={setMarkdown}
             >
-              {post.md || ''}
+              {post.content || ''}
             </MarkdownRenderer>
         </div>
     );
