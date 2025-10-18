@@ -79,7 +79,6 @@ export default function Post() {
       const url = isNewPost ? API_ENDPOINTS.posts : API_ENDPOINTS.post(id);
       const token = localStorage.getItem('token') || '';
       const method = isNewPost ? 'POST' : 'PUT';
-      console.log("token:", token);
 
       const response = await fetch(url, {
         method: method,
@@ -91,9 +90,7 @@ export default function Post() {
           date: post.date,
           title: post.title,
           description: post.description,
-          content: newMarkdown,
-          
-          ...(isNewPost && { type: 'Personal' }) 
+          content: newMarkdown, 
         }),
       });
       
@@ -129,10 +126,12 @@ export default function Post() {
       console.log('Post updated successfully:', normalizedPost);
     } catch (error) {
       console.error('Error updating post:', error);
-      
-      alert('Failed to save post. Please try again.');
+      alert('Failed to save post. Please login again.');
+
     } finally {
       setSaving(false);
+      localStorage.removeItem('token');
+      navigate('/login');
     }
   };
 

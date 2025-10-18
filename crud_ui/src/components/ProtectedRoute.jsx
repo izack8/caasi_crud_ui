@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
         return <div>Loading...</div>;
     }
 
-    if (!user) {
+    if (!user || !localStorage.getItem('token')) {
         return <Navigate to="/login" replace />;
     }
 

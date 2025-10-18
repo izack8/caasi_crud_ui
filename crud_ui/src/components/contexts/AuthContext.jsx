@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const token = localStorage.getItem('token') || '';
             const response = await fetch(AUTH_ENDPOINTS.login, {
                 method: 'POST',
                 headers: {
