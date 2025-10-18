@@ -125,10 +125,20 @@ export default function Post() {
       
       console.log('Post updated successfully:', normalizedPost);
     } catch (error) {
+
+        if (error.message.includes('401')) {
+          alert('Session expired. Please login again.');
+          localStorage.removeItem('token');
+          navigate('/login');
+        }else if (error.message.includes('403')) {
+          alert('You do not have permission to perform this action.');
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+
       console.error('Error updating post:', error);
-      alert('Failed to save post. Please login again.');
-      localStorage.removeItem('token');
-      navigate('/login');
+      alert('Failed to save post.', error.message);
+
 
     } finally {
       setSaving(false);
