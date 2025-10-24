@@ -1,13 +1,12 @@
 import SectionLabel from "../ui/SectionLabel";
-import { useEffect, useState } from "react";
-import { API_ENDPOINTS } from "../../config";
-import { data, useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
+import { API_ENDPOINTS } from "../../config"; 
+import { useNavigate } from "react-router-dom";
 import LoadingBar from '../ui/LoadingBar';
 import Button from "../ui/Button";
 import { AnimatePresence, motion } from "framer-motion";
 
 function WritingSection() {
-  
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,8 +14,10 @@ function WritingSection() {
   const [activeTag, setActiveTag] = useState("All");
   const navigate = useNavigate();
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
+    console.log('🔄 Fetching posts...');
     try {
+      setLoading(true);
       const res = await fetch(API_ENDPOINTS.posts);
 
       if (!res.ok) {
@@ -24,16 +25,31 @@ function WritingSection() {
       }
       const data = await res.json();
       data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      console.log('✅ Fetched posts:', data.length, 'posts');
       setPosts(data);
       setLoading(false);
       sessionStorage.setItem('cachedPosts', JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching posts:', error);
       setError(error.message);
-      setLoading(true);
+      setLoading(false);
     }
-  };  
+  }, []);  
 
+
+  useEffect(() => {
+    const handlePostsUpdated = (event) => {
+      fetchPosts();
+    };
+
+    window.addEventListener('postsUpdated', handlePostsUpdated);
+
+    return () => {
+      window.removeEventListener('postsUpdated', handlePostsUpdated);
+    };
+  }, [fetchPosts]);
+
+  
   useEffect(() => {
     const cachedPosts = sessionStorage.getItem('cachedPosts');
 
@@ -43,7 +59,7 @@ function WritingSection() {
     } else {
       fetchPosts();
     }
-  }, []);
+  }, [fetchPosts]);
 
   const uniqueTags = ["All", ...new Set(posts.flatMap((post) => post.type))];
 

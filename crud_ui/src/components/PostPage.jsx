@@ -18,6 +18,11 @@ export default function Post() {
   
   const isNewPost = location.pathname === '/writing/new';
 
+  const notifyPostsUpdated = () => {
+    sessionStorage.removeItem('cachedPosts');
+    window.dispatchEvent(new CustomEvent('postsUpdated'));
+  };
+
   const fetchPost =  async () => {
         try {
           const res = await fetch(API_ENDPOINTS.post(id));
@@ -40,10 +45,9 @@ export default function Post() {
         description: '',
         content: '# New Post\n\nStart writing your post here...'
       });
-      setIsEditing(true); // Start in editing mode for new posts
+      setIsEditing(true);
       setLoading(false);
     } else {
-      // Existing post logic
       const cachedPost = sessionStorage.getItem(`lastVisitedPost_${id}`);
 
       if (cachedPost) {
@@ -59,7 +63,6 @@ export default function Post() {
   const handleBack = () => {
     sessionStorage.setItem('activeTab', 'writing');
     navigate("/");
-    // set state to "writing"
   };
 
   const handleEdit = () => {
@@ -75,6 +78,7 @@ export default function Post() {
     }
     
     setSaving(true);
+
     try {
       const url = isNewPost ? API_ENDPOINTS.posts : API_ENDPOINTS.post(id);
       const token = localStorage.getItem('token') || '';
@@ -100,11 +104,11 @@ export default function Post() {
       }
 
       const updatedPost = await response.json();
+      console.log('✅ Post saved successfully:', updatedPost);
       
-      // Ensure the returned post has the correct structure
       const normalizedPost = {
         ...updatedPost,
-        md: updatedPost.content || updatedPost.md || post.md // Use content from backend or fallback
+        md: updatedPost.content || updatedPost.md || post.md
       };
       
       if (isNewPost) {
@@ -112,34 +116,29 @@ export default function Post() {
         setPost(normalizedPost);
         setIsEditing(false);
       } else {
-        // Update existing post
         setPost(normalizedPost);
         setIsEditing(false);
         
-        // Update the cached version
         sessionStorage.setItem(`lastVisitedPost_${id}`, JSON.stringify(normalizedPost));
       }
       
-      // Update the cached version
       sessionStorage.setItem(`lastVisitedPost_${id}`, JSON.stringify(normalizedPost));
       
-      console.log('Post updated successfully:', normalizedPost);
+      notifyPostsUpdated();
+      
     } catch (error) {
-
-        if (error.message.includes('401')) {
-          alert('Session expired. Please login again.');
-          localStorage.removeItem('token');
-          navigate('/login');
-        }else if (error.message.includes('403')) {
-          alert('You do not have permission to perform this action.');
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-
-      console.error('Error updating post:', error);
-      alert('Failed to save post.', error.message);
-
-
+      if (error.message.includes('401')) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else if (error.message.includes('403')) {
+        alert('You do not have permission to perform this action.');
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        console.error('Error saving post:', error);
+        alert('Failed to save post: ' + error.message);
+      }
     } finally {
       setSaving(false);
     }
@@ -158,16 +157,23 @@ export default function Post() {
     if (!confirmDelete) return;
 
     try {
+      const token = localStorage.getItem('token') || '';
       const response = await fetch(API_ENDPOINTS.post(id), {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {
         throw new Error(`Failed to delete post: ${response.status}`);
       }
 
-      // Remove cached post
+      console.log('✅ Post deleted successfully');
+      
       sessionStorage.removeItem(`lastVisitedPost_${id}`);
+      notifyPostsUpdated();
+      
       navigate('/');
     } catch (error) {
       console.error('Error deleting post:', error);
